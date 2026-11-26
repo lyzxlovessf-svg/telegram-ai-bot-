@@ -3,7 +3,7 @@ const TelegramBot = require('node-telegram-bot-api');
 const token = process.env.TELEGRAM_BOT_TOKEN;
 const AI_KEY = process.env.SHANGHAI_API_KEY;
 const BASE_URL = process.env.AI_BASE_URL || 'https://internlm.intern-ai.org.cn/v1';
-const MODEL = process.env.AI_MODEL || 'internlm2.5-latest';
+const MODEL = process.env.AI_MODEL || 'Atria-Dawn';
 
 const history = {};
 
