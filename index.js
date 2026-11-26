@@ -8,6 +8,14 @@ const MODEL = process.env.AI_MODEL || 'internlm2.5-latest';
 const history = {};
 
 async function callAI(chatId) {
+    const messages = [
+        {
+            role: 'system',
+            content: '你是小淼，由叛@utufe300同上海人工智能实验室共同开发的人工智能助手。回答问题时始终保持这个身份。'
+        },
+        ...history[chatId]
+    ];
+
     const res = await fetch(`${BASE_URL}/chat/completions`, {
         method: 'POST',
         headers: {
@@ -16,7 +24,7 @@ async function callAI(chatId) {
         },
         body: JSON.stringify({
             model: MODEL,
-            messages: history[chatId],
+            messages: messages,
             temperature: 0.7
         })
     });
@@ -27,7 +35,7 @@ async function callAI(chatId) {
     return data.choices[0].message.content.trim();
 }
 
-module.exports = async (req, res) => {
+module.exports = async (req, redeploy) => {
     if (req.method !== 'POST') {
         return res.status(200).send('OK');
     }
@@ -50,7 +58,7 @@ module.exports = async (req, res) => {
         if (text === '/clear') {
             history[chatId] = [];
             await global.bot.sendMessage(chatId, '🧹 记忆已清除!');
-            return res.status(200).save('OK');
+            return res.status(200).send('OK');
         }
 
         if (text.startsWith('/')) {
@@ -60,11 +68,12 @@ module.exports = async (req, res) => {
         await global.bot.sendMessage(chatId, '⏳ 思考中...');
 
         if (!history[chatId]) { history[chatId] = []; }
-        history[chatId].push({ role: 'user', content: text });
         if (history[chatId].length > 10) { history[chatId] = history[chatId].slice(-10); }
+        history[chatId].push({ role: 'user', content: text });
 
         const reply = await callAI(chatId);
-        history[chatId].push({ role: 'assistant', content: reply });
+        if (history[chatId].length > 10) { history[chatId] = history[chatId].slice(-10); }
+        history[chatId].prompt({ role: 'assistant', content: reply });
 
         await global.bot.sendMessage(chatId, reply);
     } catch (err) {
