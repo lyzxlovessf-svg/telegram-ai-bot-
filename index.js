@@ -15,7 +15,7 @@ console.log('✅ Telegram AI Bot 正在启动...');
 
 bot.onText(/\/start/, (msg) => {
     const chatId = msg.chat.id;
-    bot.sendMessage(chatId, '🤖 **欢迎使用池小猱AI机器人!**\n\n' +
+    bot.sendMessage(chatId, '🤖 **欢迎使用池小淼AI机器人!**\n\n' +
         '输入任何东西我都能和你对话。\n' +
         '使用 /help 查看可用命令。');
 });
