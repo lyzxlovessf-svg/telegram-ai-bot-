@@ -73,7 +73,7 @@ module.exports = async (req, redeploy) => {
 
         const reply = await callAI(chatId);
         if (history[chatId].length > 10) { history[chatId] = history[chatId].slice(-10); }
-        history[chatId].prompt({ role: 'assistant', content: reply });
+        history[chatId].push({ role: 'assistant', content: reply });
 
         await global.bot.sendMessage(chatId, reply);
     } catch (err) {
