@@ -10,7 +10,6 @@ const MODEL = process.env.AI_MODEL || 'internlm2.5-latest';
 
 const bot = new TelegramBot(token, { polling: true });
 
-// 每个用户的对话记忆
 const history = {};
 
 bot.onText(/\/start/, (msg) => {
@@ -26,16 +25,15 @@ bot.on('message', async (msg) => {
     const chatId = msg.chat.id;
     const text = (msg.text || '').trim();
     if (!text || text.startsWith('/')) return;
-if (!AI_KEY) {
+
+    if (!AI_KEY) {
         bot.sendMessage(chatId, '❌ 未配置 SHANGHAI_API_KEY，请在 Vercel 环境变量设置。');
         return;
     }
 
-    // 初始化记忆
     if (!history[chatId]) history[chatId] = [];
     history[chatId].push({ role: 'user', content: text });
-    // 只保留最近 10 条，防止超长
-    if (history[chatId].length > 10) history[chatId] = history[chatId].slice(-10);
+   ␣   if (history[chatId].length > 10) history[chatId] = history[chatId].slice(-10);
 
     try {
         const waitMsg = await bot.sendMessage(chatId, '⏳ 思考中...');
@@ -65,3 +63,9 @@ if (!AI_KEY) {
         await bot.editMessageText(reply, { chatId, messageId: waitMsg.message_id });
     } catch (err) {
         console.error('AI 调用失败:', err.message);
+        bot.sendMessage(chatId, `❌ 调用失败: ${err.message}\n\n请检查:\n1. API Key 是否正确\n2. BASE_URL 是否正确\n3. 模型名是否正确`);
+    }
+});
+
+bot.on('polling_error', (e) => console.error('轮询错误:', e.message));
+console.log('✅ AI Bot 启动成功');
