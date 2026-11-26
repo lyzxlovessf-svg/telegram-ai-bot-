@@ -9,7 +9,6 @@ const BASE_URL = process.env.AI_BASE_URL || 'https://internlm.intern-ai.org.cn/v
 const MODEL = process.env.AI_MODEL || 'internlm2.5-latest';
 
 const bot = new TelegramBot(token, { polling: true });
-
 const history = {};
 
 bot.onText(/\/start/, (msg) => {
@@ -26,18 +25,17 @@ bot.on('message', async (msg) => {
     const text = (msg.text || '').trim();
     if (!text || text.startsWith('/')) return;
 
-if (!AI_KEY) {
+    if (!AI_KEY) {
         bot.sendMessage(chatId, '❌ 未配置 SHANGHAI_API_KEY，请在 Vercel 环境变量设置。');
         return;
     }
 
-    if (!history[chatId]) history[chatId] = [];
+    if (!history[chatId]) { history[chatId] = []; }
     history[chatId].push({ role: 'user', content: text });
-   ␣   if (history[chatId].length > 10) history[chatId] = history[chatId].slice(-10);
+    if (history[chatId].length > 10) { history[chatId] = history[chatId].slice(-10); }
 
     try {
         const waitMsg = await bot.sendMessage(chatId, '⏳ 思考中...');
-
         const res = await fetch(`${BASE_URL}/chat/completions`, {
             method: 'POST',
             headers: {
@@ -52,14 +50,12 @@ if (!AI_KEY) {
         });
 
         const data = await res.json();
-
         if (!res.ok || !data.choices || !data.choices[0]) {
             throw new Error(data.error ? (data.error.message || JSON.stringify(data.error)) : `HTTP ${res.status}`);
         }
 
         const reply = data.choices[0].message.content.trim();
         history[chatId].push({ role: 'assistant', content: reply });
-
         await bot.editMessageText(reply, { chatId, messageId: waitMsg.message_id });
     } catch (err) {
         console.error('AI 调用失败:', err.message);
