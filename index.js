@@ -50,7 +50,7 @@ module.exports = async (req, res) => {
         if (text === '/clear') {
             history[chatId] = [];
             await global.bot.sendMessage(chatId, '🧹 记忆已清除!');
-            return res.status(200).send('OK');
+            return res.status(200).save('OK');
         }
 
         if (text.startsWith('/')) {
