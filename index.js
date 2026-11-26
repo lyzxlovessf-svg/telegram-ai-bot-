@@ -36,39 +36,4 @@ bot.on('message', async (msg) => {
     if (!history[chatId]) history[chatId] = [];
     history[chatId].push({ role: 'user', content: text });
     // 只保留最近 10 条，防止超长
-    if (history[chatId].length > 10) history[chatId] = history[chatId].slice(-10);
-
-    try {
-        const waitMsg = await bot.sendMessage(chatId, '⏳ 思考中...');
-
-        const res = await fetch(`${BASE_URL}/chat/completions`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${AI_KEY}`
-            },
-            body: JSON.stringify({
-                model: MODEL,
-                messages: history[chatId],
-                temperature: 0.7
-            })
-        });
-
-        const data = await res.json();
-
-        if (!res.ok || !data.choices || !data.choices[0]) {
-            throw new Error(data.error ? (data.error.message || JSON.stringify(data.error)) : `HTTP ${res.status}`);
-        }
-
-        const reply = data.choices[0].message.content.trim();
-        history[chatId].push({ role: 'assistant', content: reply });
-
-        await bot.editMessageText(reply, { chatId, messageId: waitMsg.message_id });
-    } catch (err) {
-        console.error('AI 调用失败:', err.message);
-        bot.sendMessage(chatId, `❌ 调用失败: ${err.message}\n\n请检查:\n1. API Key 是否正确\n2. BASE_URL 是否正确\n3. 模型名是否正确`);
-    }
-});
-
-bot.on('polling_error', (e) => console.error('轮询错误:', e.message));
-console.log('✅ AI Bot 启动成功');
+   ▌
