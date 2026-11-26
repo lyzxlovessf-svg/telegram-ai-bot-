@@ -26,7 +26,7 @@ bot.on('message', async (msg) => {
     const text = (msg.text || '').trim();
     if (!text || text.startsWith('/')) return;
 
-    if (!AI_KEY) {
+if (!AI_KEY) {
         bot.sendMessage(chatId, '❌ 未配置 SHANGHAI_API_KEY，请在 Vercel 环境变量设置。');
         return;
     }
